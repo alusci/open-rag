@@ -4,7 +4,7 @@ This project implements RAG (Retrieval Augmented Generation) workflow using AWS 
 
 ## Architecture
 
-![AWS RAG Architecture](img/aws-rag.jpg)
+TBD
 
 The workflow consists of three main steps:
 
@@ -18,7 +18,7 @@ The workflow consists of three main steps:
 - Retrieved documents become the context for the LLM
 
 ### 2️⃣ Response Generation
-- LLAMA 3.2 generates a response using:
+- OLLAMA generates a response using:
   - The original query
   - The retrieved context documents
 - Returns a structured response with:
@@ -26,25 +26,26 @@ The workflow consists of three main steps:
   - Source documents used for the answer
 
 ## Create conda environment
-```
+```bash
 conda create -n local-rag python=3.10
 ```
 
 ## Install dependencies
-```
+```bash
 conda activate local-rag
 pip install -r requirements.txt
 ```
 
+For a step-by-step guide on setting up and running OLLAMA on Windows, macOS, and Linux, refer to this guide: [OLLAMA Installation Guide](https://medium.com/@sridevi17j/step-by-step-guide-setting-up-and-running-ollama-in-windows-macos-linux-a00f21164bf3).
+
 ## Index documents
-```
+```bash
 # Make sure you have .txt documents in the documents folder
 python document_indexer.py
 ```
 
-
 ## Query documents
-```
+```bash
 python query_documents.py
 ```
 
