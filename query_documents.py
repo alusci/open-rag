@@ -2,23 +2,31 @@ import json
 from utils.vector_store import get_vectorstore
 from utils.models import initialize_llm
 from utils.response_formatter import format_response
-from langchain.chains import RetrievalQA
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
 
 def qa_search(query, vectorstore):
     """Perform QA search with OLLAMA LLM"""
     llm = initialize_llm()
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
     
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 5}),
-        return_source_documents=True
+    # Define the retrieval chain using LCEL
+    def format_docs(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+    
+    qa_chain = (
+        {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        | llm
+        | StrOutputParser()
     )
     
-    result = qa_chain({"query": query})
+    # Run the chain and capture documents separately for source tracking
+    retrieved_docs = retriever.invoke(query)
+    result = qa_chain.invoke(query)
+    
     return format_response(
-        answer=result["result"],
-        sources=result["source_documents"]
+        answer=result,
+        sources=retrieved_docs
     )
 
 def main():
@@ -51,4 +59,4 @@ def main():
         print(json.dumps(formatted_response, indent=2))
 
 if __name__ == "__main__":
-    main() 
+    main()
